@@ -16,7 +16,6 @@ import msgpack
 
 from veles.data.bindata import BinData
 from veles.schema import nodeid
-from veles.compatibility.int_bytes import int_to_bytes, int_from_bytes
 from veles.util.bigint import bigint_encode, bigint_decode
 
 
@@ -35,7 +34,7 @@ class MsgpackWrapper(object):
         if isinstance(obj, nodeid.NodeID):
             return msgpack.ExtType(EXT_NODE_ID, obj.bytes)
         if isinstance(obj, BinData):
-            width = int_to_bytes(obj.width, 4, "little")
+            width = obj.width.to_bytes(4, "little")
             return msgpack.ExtType(EXT_BINDATA, width + obj.raw_data)
         if isinstance(obj, int):
             return msgpack.ExtType(EXT_BIGINT, bigint_encode(obj))
@@ -46,7 +45,7 @@ class MsgpackWrapper(object):
         if code == EXT_NODE_ID:
             return nodeid.NodeID(data)
         elif code == EXT_BINDATA:
-            width = int_from_bytes(data[:4], "little")
+            width = int.from_bytes(data[:4], "little")
             return BinData.from_raw_data(width, data[4:])
         elif code == EXT_BIGINT:
             return bigint_decode(data)

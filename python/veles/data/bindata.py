@@ -14,8 +14,6 @@
 
 import operator
 
-from veles.compatibility.int_bytes import int_to_bytes, int_from_bytes
-
 
 class BinData(object):
     """
@@ -55,7 +53,7 @@ class BinData(object):
                 x = operator.index(x)
                 if x >= (1 << width) or x < 0:
                     raise ValueError("BinData element out of range for width")
-                self._raw_data += int_to_bytes(x, ope, "little")
+                self._raw_data += x.to_bytes(ope, "little")
 
     @classmethod
     def from_spaced_hex(cls, width, data):
@@ -170,7 +168,7 @@ class BinData(object):
                 if idx >= len(self):
                     raise IndexError("BinData index out of range")
             raw = self._raw_data[ope * idx : ope * (idx + 1)]
-            return int_from_bytes(raw, "little")
+            return int.from_bytes(raw, "little")
 
     def __setitem__(self, idx, val):
         """
@@ -216,7 +214,7 @@ class BinData(object):
             val = operator.index(val)
             if val >= (1 << self._width) or val < 0:
                 raise ValueError("BinData element out of range for width")
-            raw = int_to_bytes(val, ope, "little")
+            raw = val.to_bytes(ope, "little")
             self._raw_data[ope * idx : ope * (idx + 1)] = raw
 
     def __str__(self):

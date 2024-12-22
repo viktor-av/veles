@@ -15,8 +15,6 @@
 import binascii
 import random
 
-from veles.compatibility.int_bytes import int_to_bytes
-
 
 class NodeID(object):
     WIDTH = 24
@@ -26,7 +24,7 @@ class NodeID(object):
 
     def __init__(self, value=None):
         if value is None:
-            value = int_to_bytes(self._rand.getrandbits(192), self.WIDTH, "little")
+            value = self._rand.getrandbits(192).to_bytes(self.WIDTH, "little")
         if isinstance(value, bytearray):
             value = bytes(value)
         if not isinstance(value, bytes):

@@ -15,8 +15,6 @@
 
 import operator
 
-from veles.compatibility.int_bytes import int_to_bytes, int_from_bytes
-
 
 HDR_BIAS = 0x80000000
 HDR_LEN = 4
@@ -48,7 +46,7 @@ def bigint_encode(val):
     else:
         hdr = HDR_BIAS + sz
         rval = val
-    return int_to_bytes(hdr, HDR_LEN, 'big') + int_to_bytes(rval, sz, 'big')
+    return hdr.to_bytes(HDR_LEN, "big") + rval.to_bytes(sz, "big")
 
 
 def bigint_decode(val):
@@ -57,15 +55,15 @@ def bigint_decode(val):
     invalid encodings are detected.
     """
     if not isinstance(val, bytes):
-        raise TypeError('encoded bigint must be bytes')
+        raise TypeError("encoded bigint must be bytes")
     if len(val) < HDR_LEN:
-        raise ValueError('encoded bigint too short')
-    hdr = int_from_bytes(val[:HDR_LEN], 'big')
+        raise ValueError("encoded bigint too short")
+    hdr = int.from_bytes(val[:HDR_LEN], "big")
     sz = abs(hdr - HDR_BIAS)
     rest = val[HDR_LEN:]
     if len(rest) != sz:
-        raise ValueError('encoded bigint has wrong header')
-    rval = int_from_bytes(rest, 'big')
+        raise ValueError("encoded bigint has wrong header")
+    rval = int.from_bytes(rest, "big")
     if hdr < HDR_BIAS:
         return -(rval ^ ((1 << (sz * 8)) - 1))
     else:
