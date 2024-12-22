@@ -12,12 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import six
 
-from veles.compatibility.pep487 import NewObject
-
-
-class VelesException(Exception, NewObject):
+class VelesException(Exception, object):
     types = {}
 
     def __init__(self, *args):
@@ -25,13 +21,13 @@ class VelesException(Exception, NewObject):
             code, msg = args
             if code in VelesException.types:
                 self.__class__ = VelesException.types[code]
-                args = msg,
+                args = (msg,)
             else:
                 self.code = code
         else:
             code = self.code
             if args:
-                msg, = args
+                (msg,) = args
             else:
                 msg = self.msg
         self.msg = msg
@@ -39,35 +35,37 @@ class VelesException(Exception, NewObject):
 
     def __init_subclass__(cls, **kwargs):
         super(VelesException, cls).__init_subclass__(**kwargs)
-        if hasattr(cls, 'code'):
+        if hasattr(cls, "code"):
             VelesException.types[cls.code] = cls
 
     @classmethod
     def load(cls, value):
         if not isinstance(value, dict):
-            raise SchemaError('serialized exception must be a dict')
-        if set(value) != {'type', 'message'}:
-            raise SchemaError('wrong set of keys in serialized exception')
-        if not isinstance(value['type'], six.text_type):
-            raise SchemaError('exception type must be a string')
-        if not isinstance(value['message'], six.text_type):
-            raise SchemaError('exception message must be a string')
-        return VelesException(value['type'], value['message'])
+            raise SchemaError("serialized exception must be a dict")
+        if set(value) != {"type", "message"}:
+            raise SchemaError("wrong set of keys in serialized exception")
+        if not isinstance(value["type"], str):
+            raise SchemaError("exception type must be a string")
+        if not isinstance(value["message"], str):
+            raise SchemaError("exception message must be a string")
+        return VelesException(value["type"], value["message"])
 
     def dump(self):
         return {
-            u'type': six.text_type(self.code),
-            u'message': six.text_type(self.msg),
+            "type": str(self.code),
+            "message": str(self.msg),
         }
 
     @classmethod
     def cpp_type(cls):
-        return 'VelesException', 'veles::proto::VelesException'
+        return "VelesException", "veles::proto::VelesException"
 
     def __eq__(self, other):
-        return (isinstance(other, VelesException)
-                and self.code == other.code
-                and self.msg == other.msg)
+        return (
+            isinstance(other, VelesException)
+            and self.code == other.code
+            and self.msg == other.msg
+        )
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -77,65 +75,65 @@ class VelesException(Exception, NewObject):
 
 
 class ObjectGoneError(VelesException):
-    code = 'object_gone'
+    code = "object_gone"
     msg = "Object has been deleted, or never existed"
 
 
 class ObjectExistsError(VelesException):
-    code = 'object_exists'
+    code = "object_exists"
     msg = "Object with the given id already exists"
 
 
 class WritePastEndError(VelesException):
-    code = 'write_past_end'
+    code = "write_past_end"
     msg = "Data written past the end of object"
 
 
 class SchemaError(VelesException):
-    code = 'schema_error'
+    code = "schema_error"
     msg = "Schema violation"
 
 
 class ParentCycleError(VelesException):
-    code = 'parent_cycle'
+    code = "parent_cycle"
     msg = "Parent cycle would be created"
 
 
 class UnknownSubscriptionError(VelesException):
-    code = 'unknown_subscription'
+    code = "unknown_subscription"
     msg = "Unknown subscription id used"
 
 
 class SubscriptionInUseError(VelesException):
-    code = 'subscription_in_use'
+    code = "subscription_in_use"
     msg = "Subscription id already in use"
 
 
 class PreconditionFailedError(VelesException):
-    code = 'precondition_failed'
+    code = "precondition_failed"
     msg = "Transaction precondition failed"
 
 
 class RegistryNoMatchError(VelesException):
-    code = 'registry_no_match'
+    code = "registry_no_match"
     msg = "Plugin function not found in registry"
 
 
 class RegistryMultiMatchError(VelesException):
-    code = 'registry_multi_match'
+    code = "registry_multi_match"
     msg = "Multiple matching plugin functions found in registry"
 
 
 class ConnectionLostError(VelesException):
-    code = 'connection_lost'
+    code = "connection_lost"
     msg = "Connection lost"
 
 
 class AuthenticationError(VelesException):
-    code = 'auth_error'
-    msg = 'Authentication key check failed'
+    code = "auth_error"
+    msg = "Authentication key check failed"
 
 
 class ProtocolMismatchError(VelesException):
-    code = 'protocol_mismatch_error'
-    msg = 'Incompatible protocol version'
+    code = "protocol_mismatch_error"
+    msg = "Incompatible protocol version"

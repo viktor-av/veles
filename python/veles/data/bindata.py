@@ -14,8 +14,6 @@
 
 import operator
 
-from six.moves import range
-
 from veles.compatibility.int_bytes import int_to_bytes, int_from_bytes
 
 
@@ -46,7 +44,7 @@ class BinData(object):
         """
         width = operator.index(width)
         if width <= 0:
-            raise ValueError('BinData width must be positive')
+            raise ValueError("BinData width must be positive")
         self._width = width
         ope = self.octets_per_element()
         if isinstance(data, int):
@@ -56,8 +54,8 @@ class BinData(object):
             for x in data:
                 x = operator.index(x)
                 if x >= (1 << width) or x < 0:
-                    raise ValueError('BinData element out of range for width')
-                self._raw_data += int_to_bytes(x, ope, 'little')
+                    raise ValueError("BinData element out of range for width")
+                self._raw_data += int_to_bytes(x, ope, "little")
 
     @classmethod
     def from_spaced_hex(cls, width, data):
@@ -80,13 +78,13 @@ class BinData(object):
         self = cls(width)
         self._raw_data = bytearray(data)
         if len(self._raw_data) % self.octets_per_element() != 0:
-            raise ValueError('raw data length not a multiple of element size')
+            raise ValueError("raw data length not a multiple of element size")
         ope = self.octets_per_element()
         if self._width % 8 != 0:
-            to_check = self._raw_data[ope-1::ope]
+            to_check = self._raw_data[ope - 1 :: ope]
             correct = range(1 << (self._width % 8))
             if not all(x in correct for x in to_check):
-                raise ValueError('raw data with non-zero unused bits')
+                raise ValueError("raw data with non-zero unused bits")
         return self
 
     @property
@@ -113,9 +111,11 @@ class BinData(object):
         equal iff they have the same width and data.  A BinData instance is
         not equal to instances of any other class.
         """
-        return (isinstance(other, BinData) and
-                self._width == other._width and
-                self._raw_data == other._raw_data)
+        return (
+            isinstance(other, BinData)
+            and self._width == other._width
+            and self._raw_data == other._raw_data
+        )
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -155,7 +155,7 @@ class BinData(object):
         if isinstance(idx, slice):
             start, stop, stride = idx.indices(len(self))
             if stride == 1:
-                raw = self._raw_data[start * ope:stop * ope]
+                raw = self._raw_data[start * ope : stop * ope]
                 return BinData.from_raw_data(self._width, raw)
             else:
                 data = [self[x] for x in range(start, stop, stride)]
@@ -164,13 +164,13 @@ class BinData(object):
             idx = operator.index(idx)
             if idx < 0:
                 if idx < -len(self):
-                    raise IndexError('BinData index out of range')
+                    raise IndexError("BinData index out of range")
                 idx += len(self)
             else:
                 if idx >= len(self):
-                    raise IndexError('BinData index out of range')
-            raw = self._raw_data[ope * idx:ope * (idx + 1)]
-            return int_from_bytes(raw, 'little')
+                    raise IndexError("BinData index out of range")
+            raw = self._raw_data[ope * idx : ope * (idx + 1)]
+            return int_from_bytes(raw, "little")
 
     def __setitem__(self, idx, val):
         """
@@ -191,35 +191,33 @@ class BinData(object):
         if isinstance(idx, slice):
             start, stop, stride = idx.indices(len(self))
             if not isinstance(val, BinData):
-                raise TypeError(
-                    'value assigned to BinData slice must be BinData')
+                raise TypeError("value assigned to BinData slice must be BinData")
             if val._width != self._width:
-                raise ValueError(
-                    'value assigned to BinData slice has mismatched width')
+                raise ValueError("value assigned to BinData slice has mismatched width")
             if stride == 1:
-                self._raw_data[start * ope:stop * ope] = val._raw_data
+                self._raw_data[start * ope : stop * ope] = val._raw_data
             else:
                 indices = range(start, stop, stride)
                 if len(indices) != len(val):
                     raise ValueError(
-                        'value assigned to extended slice has mismatched '
-                        'length')
+                        "value assigned to extended slice has mismatched " "length"
+                    )
                 for i, v in zip(indices, val):
                     self[i] = v
         else:
             idx = operator.index(idx)
             if idx < 0:
                 if idx < -len(self):
-                    raise IndexError('BinData index out of range')
+                    raise IndexError("BinData index out of range")
                 idx += len(self)
             else:
                 if idx >= len(self):
-                    raise IndexError('BinData index out of range')
+                    raise IndexError("BinData index out of range")
             val = operator.index(val)
             if val >= (1 << self._width) or val < 0:
-                raise ValueError('BinData element out of range for width')
-            raw = int_to_bytes(val, ope, 'little')
-            self._raw_data[ope * idx:ope * (idx + 1)] = raw
+                raise ValueError("BinData element out of range for width")
+            raw = int_to_bytes(val, ope, "little")
+            self._raw_data[ope * idx : ope * (idx + 1)] = raw
 
     def __str__(self):
         """
@@ -227,13 +225,13 @@ class BinData(object):
         Every element uses ceil(width/4) hex digits.
         """
         w = (self._width + 3) // 4
-        return ' '.join('{:0{}x}'.format(x, w) for x in self)
+        return " ".join("{:0{}x}".format(x, w) for x in self)
 
     def __repr__(self):
         """
         Returns ``"BinData(self.width, str(self))"``.
         """
-        return 'BinData.from_spaced_hex({}, \'{}\')'.format(self._width, self)
+        return "BinData.from_spaced_hex({}, '{}')".format(self._width, self)
 
     def __add__(self, other):
         """
@@ -243,6 +241,5 @@ class BinData(object):
         if not isinstance(other, BinData):
             return NotImplemented
         if self._width != other._width:
-            raise ValueError('concatenating BinData of different widths')
-        return BinData.from_raw_data(self._width,
-                                     self._raw_data + other._raw_data)
+            raise ValueError("concatenating BinData of different widths")
+        return BinData.from_raw_data(self._width, self._raw_data + other._raw_data)

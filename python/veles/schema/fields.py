@@ -12,25 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import six
-
-from veles.compatibility import pep487
 from veles.proto.exceptions import SchemaError
 from veles.data import bindata
 from . import nodeid
 from . import enumeration
 
 
-class Field(pep487.NewObject):
+class Field(object):
     def __init__(self, optional=False, default=None):
         self.name = None
         if not isinstance(optional, bool):
-            raise TypeError('optional must be a bool')
+            raise TypeError("optional must be a bool")
         self.optional = optional
         self.default = default
         if default is not None:
             if optional:
-                raise ValueError('if optional is True, default must be None')
+                raise ValueError("if optional is True, default must be None")
             self.validate(default)
 
     def __get__(self, instance, owner=None):
@@ -49,15 +46,16 @@ class Field(pep487.NewObject):
         if value is None:
             if not self.optional:
                 raise SchemaError(
-                    'Attribute {} is not optional and can\'t be None.'.format(
-                        self.name))
+                    "Attribute {} is not optional and can't be None.".format(self.name)
+                )
         else:
             self._validate(value)
 
     def _validate(self, value):
         if not isinstance(value, self.value_type):
-            raise SchemaError('Attribute {} has to be {}.'.format(
-                self.name, self.value_type.__name__))
+            raise SchemaError(
+                "Attribute {} has to be {}.".format(self.name, self.value_type.__name__)
+            )
 
     def load(self, value):
         if value is None:
@@ -93,7 +91,7 @@ class Any(Field):
     value_type = object
 
     def cpp_type(self):
-        return 'veles::messages::MsgpackObject', False, 'nullptr'
+        return "veles::messages::MsgpackObject", False, "nullptr"
 
 
 class Empty(Field):
@@ -104,96 +102,100 @@ class Empty(Field):
 
 
 class Integer(Field):
-    def __init__(self, optional=False, default=None,
-                 minimum=None, maximum=None):
-        if not isinstance(minimum, six.integer_types) and minimum is not None:
-            raise TypeError('minimum must be an int')
-        if not isinstance(maximum, six.integer_types) and maximum is not None:
-            raise TypeError('maximum must be an int or None')
+    def __init__(self, optional=False, default=None, minimum=None, maximum=None):
+        if not isinstance(minimum, int) and minimum is not None:
+            raise TypeError("minimum must be an int")
+        if not isinstance(maximum, int) and maximum is not None:
+            raise TypeError("maximum must be an int or None")
         if minimum is not None and maximum is not None and minimum > maximum:
-            raise ValueError('minimum must be less than maximum')
+            raise ValueError("minimum must be less than maximum")
         self.minimum = minimum
         self.maximum = maximum
         super(Integer, self).__init__(optional, default)
 
     def _validate(self, value):
-        if not isinstance(value, six.integer_types) or isinstance(value, bool):
-            raise SchemaError('Attribute {} has to be int type.'.format(
-                self.name))
+        if not isinstance(value, int) or isinstance(value, bool):
+            raise SchemaError("Attribute {} has to be int type.".format(self.name))
         if self.minimum is not None and value < self.minimum:
-            raise SchemaError('Attribute {} minimum value is {}.'.format(
-                self.name, self.minimum))
+            raise SchemaError(
+                "Attribute {} minimum value is {}.".format(self.name, self.minimum)
+            )
         if self.maximum is not None and value > self.maximum:
-            raise SchemaError('Attribute {} maximum value is {}.'.format(
-                self.name, self.maximum))
+            raise SchemaError(
+                "Attribute {} maximum value is {}.".format(self.name, self.maximum)
+            )
 
     # TODO convert to use bignums
     def cpp_type(self):
-        return ('int64_t', True,
-                'INT64_C({})'.format(self.default if self.default is not None
-                                     else 0))
+        return (
+            "int64_t",
+            True,
+            "INT64_C({})".format(self.default if self.default is not None else 0),
+        )
 
 
 class UnsignedInteger(Integer):
-    def __init__(self, optional=False, default=None,
-                 minimum=0, maximum=None):
-        if not isinstance(minimum, six.integer_types):
-            raise TypeError('minimum must be an int')
+    def __init__(self, optional=False, default=None, minimum=0, maximum=None):
+        if not isinstance(minimum, int):
+            raise TypeError("minimum must be an int")
         if minimum < 0:
-            raise ValueError('UnsignedInteger minimum must not be negative')
-        super(UnsignedInteger, self).__init__(
-            optional, default, minimum, maximum)
+            raise ValueError("UnsignedInteger minimum must not be negative")
+        super(UnsignedInteger, self).__init__(optional, default, minimum, maximum)
 
     # TODO convert to use bignums
     def cpp_type(self):
-        return ('uint64_t', True,
-                'UINT64_C({})'.format(self.default if self.default is not None
-                                      else 0))
+        return (
+            "uint64_t",
+            True,
+            "UINT64_C({})".format(self.default if self.default is not None else 0),
+        )
 
 
-INT64_MIN = -2**63
-INT64_MAX = 2**63-1
-UINT64_MAX = 2**64-1
+INT64_MIN = -(2**63)
+INT64_MAX = 2**63 - 1
+UINT64_MAX = 2**64 - 1
 
 
 class SmallInteger(Integer):
-    def __init__(self, optional=False, default=None,
-                 minimum=INT64_MIN, maximum=INT64_MAX):
-        if not isinstance(minimum, six.integer_types):
-            raise TypeError('minimum must be an int')
-        if not isinstance(maximum, six.integer_types):
-            raise TypeError('maximum must be an int')
+    def __init__(
+        self, optional=False, default=None, minimum=INT64_MIN, maximum=INT64_MAX
+    ):
+        if not isinstance(minimum, int):
+            raise TypeError("minimum must be an int")
+        if not isinstance(maximum, int):
+            raise TypeError("maximum must be an int")
         if minimum < INT64_MIN:
-            raise ValueError('SmallInteger minimum too small')
+            raise ValueError("SmallInteger minimum too small")
         if maximum > INT64_MAX:
-            raise ValueError('SmallInteger maximum too large')
-        super(SmallInteger, self).__init__(
-            optional, default, minimum, maximum)
+            raise ValueError("SmallInteger maximum too large")
+        super(SmallInteger, self).__init__(optional, default, minimum, maximum)
 
     def cpp_type(self):
-        return ('int64_t', True,
-                'INT64_C({})'.format(self.default if self.default is not None
-                                     else 0))
+        return (
+            "int64_t",
+            True,
+            "INT64_C({})".format(self.default if self.default is not None else 0),
+        )
 
 
 class SmallUnsignedInteger(Integer):
-    def __init__(self, optional=False, default=None,
-                 minimum=0, maximum=UINT64_MAX):
-        if not isinstance(minimum, six.integer_types):
-            raise TypeError('minimum must be an int')
-        if not isinstance(maximum, six.integer_types):
-            raise TypeError('maximum must be an int')
+    def __init__(self, optional=False, default=None, minimum=0, maximum=UINT64_MAX):
+        if not isinstance(minimum, int):
+            raise TypeError("minimum must be an int")
+        if not isinstance(maximum, int):
+            raise TypeError("maximum must be an int")
         if minimum < 0:
-            raise ValueError('SmallUnsignedInteger minimum too small')
+            raise ValueError("SmallUnsignedInteger minimum too small")
         if maximum > UINT64_MAX:
-            raise ValueError('SmallUnsignedInteger maximum too large')
-        super(SmallUnsignedInteger, self).__init__(
-            optional, default, minimum, maximum)
+            raise ValueError("SmallUnsignedInteger maximum too large")
+        super(SmallUnsignedInteger, self).__init__(optional, default, minimum, maximum)
 
     def cpp_type(self):
-        return ('uint64_t', True,
-                'UINT64_C({})'.format(self.default if self.default is not None
-                                      else 0))
+        return (
+            "uint64_t",
+            True,
+            "UINT64_C({})".format(self.default if self.default is not None else 0),
+        )
 
 
 class Boolean(Field):
@@ -201,26 +203,25 @@ class Boolean(Field):
 
     def cpp_type(self):
         if self.default is None:
-            default = 'false'
+            default = "false"
         else:
-            default = 'true' if self.default else 'false'
-        return 'bool', True, default
+            default = "true" if self.default else "false"
+        return "bool", True, default
 
 
 class Float(Field):
     value_type = float
 
     def cpp_type(self):
-        return ('double', True,
-                self.default if self.default is not None else '0.0')
+        return ("double", True, self.default if self.default is not None else "0.0")
 
 
 class String(Field):
-    value_type = six.text_type
+    value_type = str
 
     def cpp_type(self):
         # TODO default value from self.default
-        return 'std::string', False, 'nullptr'
+        return "std::string", False, "nullptr"
 
 
 class Binary(Field):
@@ -228,7 +229,7 @@ class Binary(Field):
 
     def cpp_type(self):
         # TODO default value from self.default
-        return 'std::vector<uint8_t>', False, 'nullptr'
+        return "std::vector<uint8_t>", False, "nullptr"
 
 
 class NodeID(Field):
@@ -236,7 +237,7 @@ class NodeID(Field):
 
     def cpp_type(self):
         # TODO default value from self.default
-        return 'veles::data::NodeID', False, 'nullptr'
+        return "veles::data::NodeID", False, "nullptr"
 
 
 class BinData(Field):
@@ -244,7 +245,7 @@ class BinData(Field):
 
     def cpp_type(self):
         # TODO default value from self.default
-        return 'veles::data::BinData', False, 'nullptr'
+        return "veles::data::BinData", False, "nullptr"
 
 
 class Collection(Field):
@@ -258,7 +259,7 @@ class Collection(Field):
 
     def __set_name__(self, owner, name):
         super(Collection, self).__set_name__(owner, name)
-        self.element.__set_name__(owner, name + '.element')
+        self.element.__set_name__(owner, name + ".element")
 
     def _validate(self, value):
         super(Collection, self)._validate(value)
@@ -267,18 +268,11 @@ class Collection(Field):
 
     def _load(self, value):
         if not isinstance(value, list):
-            raise SchemaError(
-                'Attribute {} has to be a msgpack list'.format(self.name))
-        return self.value_type(
-            self.element.load(val)
-            for val in value
-        )
+            raise SchemaError("Attribute {} has to be a msgpack list".format(self.name))
+        return self.value_type(self.element.load(val) for val in value)
 
     def _dump(self, value):
-        return [
-            self.element.dump(val)
-            for val in value
-        ]
+        return [self.element.dump(val) for val in value]
 
 
 class List(Collection):
@@ -287,10 +281,9 @@ class List(Collection):
     def cpp_type(self):
         # TODO default value from self.default
         elem_type = (
-            '{}' if self.element.cpp_type()[1] else
-            'std::shared_ptr<{}>').format(
-            self.element.cpp_type()[0])
-        return 'std::vector<{}>'.format(elem_type), False, 'nullptr'
+            "{}" if self.element.cpp_type()[1] else "std::shared_ptr<{}>"
+        ).format(self.element.cpp_type()[0])
+        return "std::vector<{}>".format(elem_type), False, "nullptr"
 
 
 class Set(Collection):
@@ -299,10 +292,9 @@ class Set(Collection):
     def cpp_type(self):
         # TODO default value from self.default
         elem_type = (
-            '{}' if self.element.cpp_type()[1] else
-            'std::shared_ptr<{}>').format(
-            self.element.cpp_type()[0])
-        return 'std::unordered_set<{}>'.format(elem_type), False, 'nullptr'
+            "{}" if self.element.cpp_type()[1] else "std::shared_ptr<{}>"
+        ).format(self.element.cpp_type()[0])
+        return "std::unordered_set<{}>".format(elem_type), False, "nullptr"
 
 
 class Map(Field):
@@ -315,8 +307,8 @@ class Map(Field):
 
     def __set_name__(self, owner, name):
         super(Map, self).__set_name__(owner, name)
-        self.key.__set_name__(owner, name + '.key')
-        self.value.__set_name__(owner, name + '.value')
+        self.key.__set_name__(owner, name + ".key")
+        self.value.__set_name__(owner, name + ".value")
 
     def _validate(self, value):
         super(Map, self)._validate(value)
@@ -328,26 +320,21 @@ class Map(Field):
         # TODO default value from self.default
         key_type = self.key.cpp_type()[0]
         value_type = (
-            '{}' if self.value.cpp_type()[1] else
-            'std::shared_ptr<{}>').format(
-            self.value.cpp_type()[0])
-        return 'std::unordered_map<{},{}>'.format(
-            key_type, value_type), False, 'nullptr'
+            "{}" if self.value.cpp_type()[1] else "std::shared_ptr<{}>"
+        ).format(self.value.cpp_type()[0])
+        return (
+            "std::unordered_map<{},{}>".format(key_type, value_type),
+            False,
+            "nullptr",
+        )
 
     def _load(self, value):
         if not isinstance(value, dict):
-            raise SchemaError(
-                'Attribute {} has to be a dict'.format(self.name))
-        return {
-            self.key.load(k): self.value.load(v)
-            for k, v in value.items()
-        }
+            raise SchemaError("Attribute {} has to be a dict".format(self.name))
+        return {self.key.load(k): self.value.load(v) for k, v in value.items()}
 
     def _dump(self, value):
-        return {
-            self.key.dump(k): self.value.dump(v)
-            for k, v in value.items()
-        }
+        return {self.key.dump(k): self.value.dump(v) for k, v in value.items()}
 
 
 class Object(Field):
@@ -363,29 +350,36 @@ class Object(Field):
 
     def cpp_type(self):
         # TODO default value from self.default
-        return self.value_type.cpp_type()[1], False, 'nullptr'
+        return self.value_type.cpp_type()[1], False, "nullptr"
 
 
 class Enum(Field):
     def __init__(self, value_type, optional=False, default=None):
         if not issubclass(value_type, enumeration.EnumModel):
-            raise TypeError('Enum field value_type has to be an enum.')
+            raise TypeError("Enum field value_type has to be an enum.")
         self.value_type = value_type
         super(Enum, self).__init__(optional, default)
 
     def _load(self, value):
-        if not isinstance(value, six.text_type):
-            raise SchemaError('serialized enum value has to be a string')
+        if not isinstance(value, str):
+            raise SchemaError("serialized enum value has to be a string")
         if value not in self.value_type.__members__:
-            raise SchemaError('unrecognized enum value {}'.format(value))
+            raise SchemaError("unrecognized enum value {}".format(value))
         return self.value_type[value]
 
     def _dump(self, value):
-        return six.text_type(value.name)
+        return str(value.name)
 
     def cpp_type(self):
-        return (self.value_type.cpp_type()[1], True,
-                '{0}::{1}'.format(
-                   self.value_type.cpp_type()[1],
-                   (self.default.name if self.default is not None
-                    else list(self.value_type.__members__)[0]).upper()))
+        return (
+            self.value_type.cpp_type()[1],
+            True,
+            "{0}::{1}".format(
+                self.value_type.cpp_type()[1],
+                (
+                    self.default.name
+                    if self.default is not None
+                    else list(self.value_type.__members__)[0]
+                ).upper(),
+            ),
+        )

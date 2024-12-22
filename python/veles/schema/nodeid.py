@@ -15,26 +15,24 @@
 import binascii
 import random
 
-from veles.compatibility import pep487
 from veles.compatibility.int_bytes import int_to_bytes
 
 
-class NodeID(pep487.NewObject):
+class NodeID(object):
     WIDTH = 24
-    _NULL_VAL = b'\x00'*WIDTH
-    _ROOT_VAL = b'\xff'*WIDTH
+    _NULL_VAL = b"\x00" * WIDTH
+    _ROOT_VAL = b"\xff" * WIDTH
     _rand = random.SystemRandom()
 
     def __init__(self, value=None):
         if value is None:
-            value = int_to_bytes(
-                self._rand.getrandbits(192), self.WIDTH, 'little')
+            value = int_to_bytes(self._rand.getrandbits(192), self.WIDTH, "little")
         if isinstance(value, bytearray):
             value = bytes(value)
         if not isinstance(value, bytes):
-            raise TypeError('wrong type provided')
+            raise TypeError("wrong type provided")
         if len(value) != self.WIDTH or value == self._NULL_VAL:
-            raise ValueError('value is not valid id')
+            raise ValueError("value is not valid id")
         self._bytes = value
 
     @staticmethod
@@ -47,12 +45,12 @@ class NodeID(pep487.NewObject):
 
     def __str__(self):
         if self == self.root_id:
-            return 'root'
-        return binascii.b2a_hex(self.bytes).decode('ascii')
+            return "root"
+        return binascii.b2a_hex(self.bytes).decode("ascii")
 
     def __repr__(self):
         if self == self.root_id:
-            return 'NodeID.root_id'
+            return "NodeID.root_id"
         return 'NodeID.from_hex("{}")'.format(str(self))
 
     def __eq__(self, other):

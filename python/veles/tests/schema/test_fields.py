@@ -15,7 +15,6 @@
 from __future__ import unicode_literals
 
 import unittest
-import six
 
 from veles.data.bindata import BinData
 from veles.schema.nodeid import NodeID
@@ -25,16 +24,16 @@ from veles.proto.exceptions import VelesException, SchemaError
 
 class Piwo(object):
     def dump(self):
-        return 'piwo'
+        return "piwo"
 
     @classmethod
     def load(cls, value):
-        if value != 'piwo':
+        if value != "piwo":
             raise SchemaError
         return Piwo()
 
     def __eq__(self, other):
-        return type(self) == type(other)
+        return type(self) is type(other)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -45,16 +44,16 @@ class Piwo(object):
 
 class Zlew(object):
     def dump(self):
-        return 'zlew'
+        return "zlew"
 
     @classmethod
     def load(cls, value):
-        if value != 'zlew':
+        if value != "zlew":
             raise SchemaError
         return Zlew()
 
     def __eq__(self, other):
-        return type(self) == type(other)
+        return type(self) is type(other)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -64,23 +63,23 @@ class Zlew(object):
 
 
 class ZlewType(enumeration.EnumModel):
-    ZLEW = 'zlewzlewzlew'
-    TURBOZLEW = b'turbo'
+    ZLEW = "zlewzlewzlew"
+    TURBOZLEW = b"turbo"
     DWUZLEW = 2
 
 
 class TestFields(unittest.TestCase):
     def test_field(self):
-        a = fields.Any(default='zlew')
-        a.__set_name__(None, 'a')
-        self.assertEqual(a.name, 'a')
+        a = fields.Any(default="zlew")
+        a.__set_name__(None, "a")
+        self.assertEqual(a.name, "a")
         a.validate(1234)
         a.validate({})
         with self.assertRaises(SchemaError):
             a.validate(None)
         tv = {
-            'a': 123,
-            'b': 'c',
+            "a": 123,
+            "b": "c",
         }
         self.assertEqual(a.dump(tv), tv)
         self.assertEqual(a.load(tv), tv)
@@ -88,13 +87,13 @@ class TestFields(unittest.TestCase):
             a.load(None)
 
         with self.assertRaises(TypeError):
-            fields.Any(optional='zlew')
+            fields.Any(optional="zlew")
         with self.assertRaises(ValueError):
-            a = fields.Any(optional=True, default='zlew')
+            a = fields.Any(optional=True, default="zlew")
 
     def test_empty(self):
         with self.assertRaises(TypeError):
-            fields.Empty(default='zlew')
+            fields.Empty(default="zlew")
         with self.assertRaises(TypeError):
             fields.Empty(optional=False)
 
@@ -109,7 +108,7 @@ class TestFields(unittest.TestCase):
 
     def test_boolean(self):
         with self.assertRaises(SchemaError):
-            fields.Boolean(default='zlew')
+            fields.Boolean(default="zlew")
 
         a = fields.Boolean(optional=True)
         a.validate(True)
@@ -132,39 +131,39 @@ class TestFields(unittest.TestCase):
         with self.assertRaises(SchemaError):
             a.validate(1)
         with self.assertRaises(SchemaError):
-            a.validate('1.0')
+            a.validate("1.0")
         self.assertEqual(a.dump(1.234), 1.234)
         self.assertEqual(a.load(1.234), 1.234)
         with self.assertRaises(SchemaError):
             a.load(1)
         with self.assertRaises(SchemaError):
-            a.load('1.0')
+            a.load("1.0")
 
     def test_string(self):
         a = fields.String()
-        a.validate('abcd')
+        a.validate("abcd")
         with self.assertRaises(SchemaError):
-            a.validate(b'abcd')
+            a.validate(b"abcd")
         with self.assertRaises(SchemaError):
             a.validate(1234)
-        self.assertEqual(a.dump('abcd'), 'abcd')
-        self.assertEqual(a.load('abcd'), 'abcd')
+        self.assertEqual(a.dump("abcd"), "abcd")
+        self.assertEqual(a.load("abcd"), "abcd")
         with self.assertRaises(SchemaError):
-            a.load(b'abcd')
+            a.load(b"abcd")
         with self.assertRaises(SchemaError):
             a.load(1234)
 
     def test_binary(self):
         a = fields.Binary()
-        a.validate(b'abcd')
+        a.validate(b"abcd")
         with self.assertRaises(SchemaError):
-            a.validate('abcd')
+            a.validate("abcd")
         with self.assertRaises(SchemaError):
             a.validate(1234)
-        self.assertEqual(a.dump(b'abcd'), b'abcd')
-        self.assertEqual(a.load(b'abcd'), b'abcd')
+        self.assertEqual(a.dump(b"abcd"), b"abcd")
+        self.assertEqual(a.load(b"abcd"), b"abcd")
         with self.assertRaises(SchemaError):
-            a.load('abcd')
+            a.load("abcd")
         with self.assertRaises(SchemaError):
             a.load(1234)
 
@@ -173,13 +172,13 @@ class TestFields(unittest.TestCase):
         id = NodeID()
         a.validate(id)
         with self.assertRaises(SchemaError):
-            a.validate(b'abcd')
+            a.validate(b"abcd")
         with self.assertRaises(SchemaError):
             a.validate(1234)
         self.assertEqual(a.dump(id), id)
         self.assertEqual(a.load(id), id)
         with self.assertRaises(SchemaError):
-            a.load(b'abcd')
+            a.load(b"abcd")
         with self.assertRaises(SchemaError):
             a.load(1234)
 
@@ -188,13 +187,13 @@ class TestFields(unittest.TestCase):
         data = BinData(8, [0x12, 0x34])
         a.validate(data)
         with self.assertRaises(SchemaError):
-            a.validate(b'abcd')
+            a.validate(b"abcd")
         with self.assertRaises(SchemaError):
             a.validate(1234)
         self.assertEqual(a.dump(data), data)
         self.assertEqual(a.load(data), data)
         with self.assertRaises(SchemaError):
-            a.load(b'abcd')
+            a.load(b"abcd")
         with self.assertRaises(SchemaError):
             a.load(1234)
 
@@ -203,8 +202,8 @@ class TestFields(unittest.TestCase):
         a.validate(0)
         a.validate(1)
         a.validate(-1)
-        a.validate(0x123456789abcdef123456789abcdef)
-        a.validate(-0x123456789abcdef123456789abcdef)
+        a.validate(0x123456789ABCDEF123456789ABCDEF)
+        a.validate(-0x123456789ABCDEF123456789ABCDEF)
         with self.assertRaises(SchemaError):
             a.validate(False)
         with self.assertRaises(SchemaError):
@@ -216,19 +215,19 @@ class TestFields(unittest.TestCase):
         a.validate(234)
         a.validate(456)
         with self.assertRaises(SchemaError):
-            a.validate(-0x123456789abcdef123456789abcdef)
+            a.validate(-0x123456789ABCDEF123456789ABCDEF)
         with self.assertRaises(SchemaError):
             a.validate(-124)
         with self.assertRaises(SchemaError):
             a.validate(457)
         with self.assertRaises(SchemaError):
-            a.validate(0x123456789abcdef123456789abcdef)
+            a.validate(0x123456789ABCDEF123456789ABCDEF)
 
         a = fields.Integer(minimum=123)
         a.validate(123)
         a.validate(234)
         a.validate(456)
-        a.validate(0x123456789abcdef123456789abcdef)
+        a.validate(0x123456789ABCDEF123456789ABCDEF)
         with self.assertRaises(SchemaError):
             a.validate(0)
         with self.assertRaises(SchemaError):
@@ -237,9 +236,9 @@ class TestFields(unittest.TestCase):
             a.validate(122)
 
         with self.assertRaises(TypeError):
-            fields.Integer(minimum='zlew')
+            fields.Integer(minimum="zlew")
         with self.assertRaises(TypeError):
-            fields.Integer(maximum='zlew')
+            fields.Integer(maximum="zlew")
         fields.Integer(minimum=3, maximum=3)
         fields.Integer(minimum=3)
         fields.Integer(maximum=3)
@@ -251,13 +250,13 @@ class TestFields(unittest.TestCase):
         a.validate(0)
         a.validate(1)
         a.validate(123)
-        a.validate(0x123456789abcdef123456789abcdef)
+        a.validate(0x123456789ABCDEF123456789ABCDEF)
         with self.assertRaises(SchemaError):
             a.validate(-122)
         with self.assertRaises(SchemaError):
             a.validate(-1)
         with self.assertRaises(SchemaError):
-            a.validate(-0x123456789abcdef123456789abcdef)
+            a.validate(-0x123456789ABCDEF123456789ABCDEF)
 
         with self.assertRaises(ValueError):
             fields.UnsignedInteger(minimum=-1)
@@ -276,14 +275,14 @@ class TestFields(unittest.TestCase):
         a.validate(-1)
         a.validate(1)
         a.validate(-0x8000000000000000)
-        a.validate(0x7fffffffffffffff)
+        a.validate(0x7FFFFFFFFFFFFFFF)
         with self.assertRaises(SchemaError):
             a.validate(-0x8000000000000001)
         with self.assertRaises(SchemaError):
             a.validate(0x8000000000000000)
         fields.SmallInteger(minimum=-1)
         fields.SmallInteger(maximum=-1)
-        fields.SmallInteger(maximum=0x7fffffffffffffff)
+        fields.SmallInteger(maximum=0x7FFFFFFFFFFFFFFF)
         fields.SmallInteger(minimum=-0x8000000000000000)
         with self.assertRaises(ValueError):
             fields.SmallInteger(maximum=0x8000000000000000)
@@ -298,14 +297,14 @@ class TestFields(unittest.TestCase):
         a = fields.SmallUnsignedInteger()
         a.validate(0)
         a.validate(1)
-        a.validate(0xffffffffffffffff)
+        a.validate(0xFFFFFFFFFFFFFFFF)
         with self.assertRaises(SchemaError):
             a.validate(-1)
         with self.assertRaises(SchemaError):
             a.validate(0x10000000000000000)
         fields.SmallUnsignedInteger(minimum=1)
         fields.SmallUnsignedInteger(maximum=1)
-        fields.SmallUnsignedInteger(maximum=0xffffffffffffffff)
+        fields.SmallUnsignedInteger(maximum=0xFFFFFFFFFFFFFFFF)
         fields.SmallUnsignedInteger(minimum=0)
         with self.assertRaises(ValueError):
             fields.SmallUnsignedInteger(maximum=0x10000000000000000)
@@ -321,30 +320,30 @@ class TestFields(unittest.TestCase):
         a.validate(None)
         a.validate(Piwo())
         with self.assertRaises(SchemaError):
-            a.validate('piwo')
+            a.validate("piwo")
         with self.assertRaises(SchemaError):
             a.validate(Zlew())
-        self.assertIsInstance(a.load('piwo'), Piwo)
+        self.assertIsInstance(a.load("piwo"), Piwo)
         with self.assertRaises(SchemaError):
-            a.load('zlew')
+            a.load("zlew")
         self.assertEqual(a.load(None), None)
-        self.assertEqual(a.dump(Piwo()), 'piwo')
+        self.assertEqual(a.dump(Piwo()), "piwo")
         self.assertEqual(a.dump(None), None)
 
         a = fields.Object(Zlew)
         a.validate(Zlew())
         with self.assertRaises(SchemaError):
-            a.validate('zlew')
+            a.validate("zlew")
         with self.assertRaises(SchemaError):
             a.validate(Piwo())
         with self.assertRaises(SchemaError):
             a.validate(None)
-        self.assertIsInstance(a.load('zlew'), Zlew)
+        self.assertIsInstance(a.load("zlew"), Zlew)
         with self.assertRaises(SchemaError):
-            a.load('piwo')
+            a.load("piwo")
         with self.assertRaises(SchemaError):
             a.load(None)
-        self.assertEqual(a.dump(Zlew()), 'zlew')
+        self.assertEqual(a.dump(Zlew()), "zlew")
 
         fields.Object(Zlew, default=Zlew())
         with self.assertRaises(SchemaError):
@@ -366,19 +365,19 @@ class TestFields(unittest.TestCase):
         with self.assertRaises(SchemaError):
             a.validate([Piwo(), None])
         self.assertEqual(a.load([]), [])
-        self.assertEqual(a.load(['piwo', 'piwo']), [Piwo(), Piwo()])
+        self.assertEqual(a.load(["piwo", "piwo"]), [Piwo(), Piwo()])
         with self.assertRaises(SchemaError):
             a.validate(a.load({}))
         with self.assertRaises(SchemaError):
             a.validate(a.load(None))
         with self.assertRaises(SchemaError):
-            a.validate(a.load('piwo'))
+            a.validate(a.load("piwo"))
         with self.assertRaises(SchemaError):
-            a.validate(a.load(['zlew']))
+            a.validate(a.load(["zlew"]))
         with self.assertRaises(SchemaError):
-            a.validate(a.load(['piwo', None]))
+            a.validate(a.load(["piwo", None]))
         self.assertEqual(a.dump([]), [])
-        self.assertEqual(a.dump([Piwo(), Piwo()]), ['piwo', 'piwo'])
+        self.assertEqual(a.dump([Piwo(), Piwo()]), ["piwo", "piwo"])
         fields.List(fields.Integer(), default=[1, 2, 3])
 
     def test_set(self):
@@ -396,19 +395,19 @@ class TestFields(unittest.TestCase):
         with self.assertRaises(SchemaError):
             a.validate({Piwo(), None})
         self.assertEqual(a.load([]), set())
-        self.assertEqual(a.load(['piwo']), {Piwo()})
+        self.assertEqual(a.load(["piwo"]), {Piwo()})
         with self.assertRaises(SchemaError):
             a.validate(a.load({}))
         with self.assertRaises(SchemaError):
             a.validate(a.load(None))
         with self.assertRaises(SchemaError):
-            a.validate(a.load('piwo'))
+            a.validate(a.load("piwo"))
         with self.assertRaises(SchemaError):
-            a.validate(a.load(['zlew']))
+            a.validate(a.load(["zlew"]))
         with self.assertRaises(SchemaError):
-            a.validate(a.load(['piwo', None]))
+            a.validate(a.load(["piwo", None]))
         self.assertEqual(a.dump({}), [])
-        self.assertEqual(a.dump({Piwo()}), ['piwo'])
+        self.assertEqual(a.dump({Piwo()}), ["piwo"])
         fields.Set(fields.Integer(), default={1, 2, 3})
 
     def test_map(self):
@@ -434,85 +433,95 @@ class TestFields(unittest.TestCase):
         with self.assertRaises(SchemaError):
             a.validate({None: Zlew()})
         self.assertEqual(a.load({}), {})
-        self.assertEqual(a.load({'piwo': 'zlew'}), {Piwo(): Zlew()})
+        self.assertEqual(a.load({"piwo": "zlew"}), {Piwo(): Zlew()})
         with self.assertRaises(SchemaError):
             a.validate(a.load([]))
         with self.assertRaises(SchemaError):
             a.validate(a.load(None))
         with self.assertRaises(SchemaError):
-            a.validate(a.load('piwo'))
+            a.validate(a.load("piwo"))
         with self.assertRaises(SchemaError):
-            a.validate(a.load({'piwo': 'piwo'}))
+            a.validate(a.load({"piwo": "piwo"}))
         with self.assertRaises(SchemaError):
-            a.validate(a.load({'piwo', 'zlew'}))
+            a.validate(a.load({"piwo", "zlew"}))
         self.assertEqual(a.dump({}), {})
-        self.assertEqual(a.dump({Piwo(): Zlew()}), {'piwo': 'zlew'})
-        fields.Map(fields.Integer(), fields.String(), default={1: 'a'})
+        self.assertEqual(a.dump({Piwo(): Zlew()}), {"piwo": "zlew"})
+        fields.Map(fields.Integer(), fields.String(), default={1: "a"})
 
     def test_enum(self):
         a = fields.Enum(ZlewType)
         a.validate(ZlewType.ZLEW)
         with self.assertRaises(SchemaError):
-            a.validate('ZLEW')
+            a.validate("ZLEW")
         with self.assertRaises(SchemaError):
-            a.validate('zlewzlewzlew')
-        self.assertEqual(a.dump(ZlewType.ZLEW), 'ZLEW')
-        self.assertIsInstance(a.dump(ZlewType.ZLEW), six.text_type)
-        self.assertIs(a.load('TURBOZLEW'), ZlewType.TURBOZLEW)
+            a.validate("zlewzlewzlew")
+        self.assertEqual(a.dump(ZlewType.ZLEW), "ZLEW")
+        self.assertIsInstance(a.dump(ZlewType.ZLEW), str)
+        self.assertIs(a.load("TURBOZLEW"), ZlewType.TURBOZLEW)
         with self.assertRaises(SchemaError):
             a.load(2)
         with self.assertRaises(SchemaError):
-            a.load('zlewzlewzlew')
+            a.load("zlewzlewzlew")
         with self.assertRaises(SchemaError):
-            a.load('PIETROZLEW')
+            a.load("PIETROZLEW")
         with self.assertRaises(TypeError):
             fields.Enum(int)
 
     def test_exception(self):
         a = fields.Object(VelesException)
-        a.validate(VelesException('abc', 'def'))
+        a.validate(VelesException("abc", "def"))
         a.validate(SchemaError())
         with self.assertRaises(SchemaError):
-            a.validate('zlew')
+            a.validate("zlew")
         with self.assertRaises(SchemaError):
             a.validate(Exception())
-        de = a.dump(VelesException('abc', 'def'))
-        self.assertEqual(de, {
-            'type': 'abc',
-            'message': 'def',
-        })
+        de = a.dump(VelesException("abc", "def"))
+        self.assertEqual(
+            de,
+            {
+                "type": "abc",
+                "message": "def",
+            },
+        )
         for k, v in de.items():
-            self.assertIsInstance(k, six.text_type)
-            self.assertIsInstance(v, six.text_type)
+            self.assertIsInstance(k, str)
+            self.assertIsInstance(v, str)
         de = a.dump(SchemaError())
-        self.assertEqual(de, {
-            'type': 'schema_error',
-            'message': SchemaError.msg,
-        })
+        self.assertEqual(
+            de,
+            {
+                "type": "schema_error",
+                "message": SchemaError.msg,
+            },
+        )
         for k, v in de.items():
-            self.assertIsInstance(k, six.text_type)
-            self.assertIsInstance(v, six.text_type)
-        exc = a.load({
-            'type': 'abc',
-            'message': 'def',
-        })
+            self.assertIsInstance(k, str)
+            self.assertIsInstance(v, str)
+        exc = a.load(
+            {
+                "type": "abc",
+                "message": "def",
+            }
+        )
         self.assertIs(type(exc), VelesException)
-        self.assertEqual(exc.code, 'abc')
-        self.assertEqual(exc.msg, 'def')
-        exc = a.load({
-            'type': 'schema_error',
-            'message': 'ghi',
-        })
+        self.assertEqual(exc.code, "abc")
+        self.assertEqual(exc.msg, "def")
+        exc = a.load(
+            {
+                "type": "schema_error",
+                "message": "ghi",
+            }
+        )
         self.assertIs(type(exc), SchemaError)
-        self.assertEqual(exc.code, 'schema_error')
-        self.assertEqual(exc.msg, 'ghi')
+        self.assertEqual(exc.code, "schema_error")
+        self.assertEqual(exc.msg, "ghi")
         with self.assertRaises(SchemaError):
             a.load([])
         with self.assertRaises(SchemaError):
             a.load({})
         with self.assertRaises(SchemaError):
-            a.load({'type': 'abc', 'message': 'def', 'hgw': 'zlew'})
+            a.load({"type": "abc", "message": "def", "hgw": "zlew"})
         with self.assertRaises(SchemaError):
-            a.load({'type': b'zlew', 'message': 'def'})
+            a.load({"type": b"zlew", "message": "def"})
         with self.assertRaises(SchemaError):
-            a.load({'type': 'zlew', 'message': b'def'})
+            a.load({"type": "zlew", "message": b"def"})

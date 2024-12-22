@@ -16,8 +16,6 @@ from __future__ import unicode_literals
 
 import unittest
 
-import six
-
 from veles.schema import fields
 from veles.schema.model import PolymorphicModel
 from veles.proto.exceptions import SchemaError
@@ -28,7 +26,7 @@ class BaseNieZlew(PolymorphicModel):
 
 
 class NieZlew(BaseNieZlew):
-    object_type = 'nie_zlew'
+    object_type = "nie_zlew"
     pole = fields.String(optional=True)
 
 
@@ -37,12 +35,12 @@ class BaseZlew(PolymorphicModel):
 
 
 class Zlew(BaseZlew):
-    object_type = 'zlew'
+    object_type = "zlew"
     odplyw = fields.String()
 
 
 class TurboZlew(Zlew):
-    object_type = 'turbozlew'
+    object_type = "turbozlew"
     dopalacz = fields.Binary()
 
 
@@ -51,114 +49,130 @@ class WieloZlew(BaseZlew):
 
 
 class DwuZlew(WieloZlew):
-    object_type = 'dwuzlew'
+    object_type = "dwuzlew"
     lewy = fields.Object(Zlew)
     prawy = fields.Object(Zlew)
 
 
 class PietroZlew(WieloZlew):
-    object_type = 'pietrozlew'
+    object_type = "pietrozlew"
     pietra = fields.List(fields.Object(BaseZlew))
 
 
 class TestModel(unittest.TestCase):
     def test_fields(self):
-        self.assertEqual(set(BaseZlew.fields), {
-            BaseZlew.imie
-        })
-        self.assertEqual(set(Zlew.fields), {
-            BaseZlew.imie, Zlew.odplyw
-        })
-        self.assertEqual(set(TurboZlew.fields), {
-            BaseZlew.imie, Zlew.odplyw, TurboZlew.dopalacz
-        })
-        self.assertEqual(set(WieloZlew.fields), {
-            BaseZlew.imie, WieloZlew.przeplyw
-        })
-        self.assertEqual(set(DwuZlew.fields), {
-            BaseZlew.imie, WieloZlew.przeplyw, DwuZlew.lewy, DwuZlew.prawy
-        })
-        self.assertEqual(set(PietroZlew.fields), {
-            BaseZlew.imie, WieloZlew.przeplyw, PietroZlew.pietra
-        })
+        self.assertEqual(set(BaseZlew.fields), {BaseZlew.imie})
+        self.assertEqual(set(Zlew.fields), {BaseZlew.imie, Zlew.odplyw})
+        self.assertEqual(
+            set(TurboZlew.fields), {BaseZlew.imie, Zlew.odplyw, TurboZlew.dopalacz}
+        )
+        self.assertEqual(set(WieloZlew.fields), {BaseZlew.imie, WieloZlew.przeplyw})
+        self.assertEqual(
+            set(DwuZlew.fields),
+            {BaseZlew.imie, WieloZlew.przeplyw, DwuZlew.lewy, DwuZlew.prawy},
+        )
+        self.assertEqual(
+            set(PietroZlew.fields),
+            {BaseZlew.imie, WieloZlew.przeplyw, PietroZlew.pietra},
+        )
 
     def test_object_types(self):
-        self.assertEqual(set(BaseZlew.object_types), {
-            'zlew', 'turbozlew', 'dwuzlew', 'pietrozlew',
-        })
+        self.assertEqual(
+            set(BaseZlew.object_types),
+            {
+                "zlew",
+                "turbozlew",
+                "dwuzlew",
+                "pietrozlew",
+            },
+        )
         for x in BaseZlew.object_types:
-            self.assertIsInstance(x, six.text_type)
+            self.assertIsInstance(x, str)
 
         class BaseAbc(PolymorphicModel):
             pass
 
         with self.assertRaises(TypeError):
+
             class Abc(BaseAbc):
-                object_type = b'abc'
+                object_type = b"abc"
 
         with self.assertRaises(TypeError):
+
             class Def(BaseAbc):
                 object_type = 1234
 
     def test_init(self):
-        a = Zlew(odplyw='o')
-        b = TurboZlew(odplyw='wzium', dopalacz=b'\xf3\x90')
+        a = Zlew(odplyw="o")
+        b = TurboZlew(odplyw="wzium", dopalacz=b"\xf3\x90")
         c = DwuZlew(lewy=a, prawy=b)
-        d = PietroZlew(imie='Jasiu', pietra=[c], przeplyw=1)
+        d = PietroZlew(imie="Jasiu", pietra=[c], przeplyw=1)
         with self.assertRaises(TypeError):
-            BaseZlew(imie='Sid')
+            BaseZlew(imie="Sid")
         with self.assertRaises(TypeError):
-            WieloZlew(imie='Legion')
+            WieloZlew(imie="Legion")
         with self.assertRaises(SchemaError):
             DwuZlew(lewy=a, prawy=d)
 
     def test_dump(self):
-        a = Zlew(odplyw='o')
-        b = TurboZlew(odplyw='wzium', dopalacz=b'\xf3\x90')
+        a = Zlew(odplyw="o")
+        b = TurboZlew(odplyw="wzium", dopalacz=b"\xf3\x90")
         c = DwuZlew(lewy=a, prawy=b)
-        d = PietroZlew(imie='Jasiu', pietra=[c], przeplyw=1)
+        d = PietroZlew(imie="Jasiu", pietra=[c], przeplyw=1)
         da = a.dump()
         db = b.dump()
         dc = c.dump()
         dd = d.dump()
         for x in da:
-            self.assertIsInstance(x, six.text_type)
+            self.assertIsInstance(x, str)
         for x in db:
-            self.assertIsInstance(x, six.text_type)
+            self.assertIsInstance(x, str)
         for x in dc:
-            self.assertIsInstance(x, six.text_type)
+            self.assertIsInstance(x, str)
         for x in dd:
-            self.assertIsInstance(x, six.text_type)
-        self.assertEqual(da, {
-            'object_type': 'zlew',
-            'imie': None,
-            'odplyw': 'o',
-        })
-        self.assertEqual(db, {
-            'object_type': 'turbozlew',
-            'imie': None,
-            'odplyw': 'wzium',
-            'dopalacz': b'\xf3\x90',
-        })
-        self.assertEqual(dc, {
-            'object_type': 'dwuzlew',
-            'imie': None,
-            'lewy': da,
-            'prawy': db,
-            'przeplyw': 13,
-        })
-        self.assertEqual(dd, {
-            'object_type': 'pietrozlew',
-            'imie': 'Jasiu',
-            'pietra': [dc],
-            'przeplyw': 1,
-        })
+            self.assertIsInstance(x, str)
+        self.assertEqual(
+            da,
+            {
+                "object_type": "zlew",
+                "imie": None,
+                "odplyw": "o",
+            },
+        )
+        self.assertEqual(
+            db,
+            {
+                "object_type": "turbozlew",
+                "imie": None,
+                "odplyw": "wzium",
+                "dopalacz": b"\xf3\x90",
+            },
+        )
+        self.assertEqual(
+            dc,
+            {
+                "object_type": "dwuzlew",
+                "imie": None,
+                "lewy": da,
+                "prawy": db,
+                "przeplyw": 13,
+            },
+        )
+        self.assertEqual(
+            dd,
+            {
+                "object_type": "pietrozlew",
+                "imie": "Jasiu",
+                "pietra": [dc],
+                "przeplyw": 1,
+            },
+        )
 
     def test_load(self):
-        a = Zlew(odplyw='o')
-        b = TurboZlew(odplyw='wzium', dopalacz=b'\xf3\x90')
+        a = Zlew(odplyw="o")
+        b = TurboZlew(odplyw="wzium", dopalacz=b"\xf3\x90")
         c = DwuZlew(lewy=a, prawy=b)
-        d = PietroZlew(imie='Jasiu', pietra=[c], przeplyw=1)
+        d = PietroZlew(imie="Jasiu", pietra=[c], przeplyw=1)
         da = a.dump()
         db = b.dump()
         dc = c.dump()
@@ -223,4 +237,4 @@ class TestModel(unittest.TestCase):
         with self.assertRaises(SchemaError):
             BaseZlew.load({})
         with self.assertRaises(SchemaError):
-            BaseZlew.load({'object_type': 'nie_zlew'})
+            BaseZlew.load({"object_type": "nie_zlew"})

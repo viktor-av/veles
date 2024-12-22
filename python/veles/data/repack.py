@@ -14,8 +14,6 @@
 
 import operator
 
-from six.moves import range
-
 from .bindata import BinData
 
 try:
@@ -31,8 +29,9 @@ class Endian(enumeration.EnumModel):
     """
     Represents endianness used for repacking data.
     """
-    LITTLE = 'little'
-    BIG = 'big'
+
+    LITTLE = "little"
+    BIG = "big"
 
 
 class Repacker(Model):
@@ -66,10 +65,7 @@ class Repacker(Model):
 
     def __init__(self, endian, from_width, to_width, **kwargs):
         super(Repacker, self).__init__(
-            endian=endian,
-            from_width=from_width,
-            to_width=to_width,
-            **kwargs
+            endian=endian, from_width=from_width, to_width=to_width, **kwargs
         )
 
     @property
@@ -96,7 +92,7 @@ class Repacker(Model):
         """
         num_elements = operator.index(num_elements)
         if num_elements < 0:
-            raise ValueError('number of elements cannot be negative')
+            raise ValueError("number of elements cannot be negative")
         bits = num_elements * self.padded_width
         return (bits + self.from_width - 1) // self.from_width
 
@@ -107,7 +103,7 @@ class Repacker(Model):
         floor(self.from_width * from_size / self.padded_width).
         """
         if from_size < 0:
-            raise ValueError('source size cannot be negative')
+            raise ValueError("source size cannot be negative")
         bits = self.from_width * from_size
         return bits // self.padded_width
 
@@ -121,12 +117,12 @@ class Repacker(Model):
         as possible).
         """
         if not isinstance(src, BinData):
-            raise TypeError('repack needs a BinData instance')
+            raise TypeError("repack needs a BinData instance")
         if self.from_width != src.width:
-            raise ValueError('repack source width mismatch')
+            raise ValueError("repack source width mismatch")
         start = operator.index(start)
         if start < 0:
-            raise ValueError('start cannot be negative')
+            raise ValueError("start cannot be negative")
         ru = self.repack_unit
         spu = ru // self.from_width
         dpu = ru // self.padded_width
@@ -134,14 +130,14 @@ class Repacker(Model):
             num_elements = self.repackable_size(len(src) - start)
         rs = self.repack_size(num_elements)
         if start + rs > len(src):
-            raise ValueError('not enough data in source')
+            raise ValueError("not enough data in source")
         units = (rs + spu - 1) // spu
         res = BinData(self.to_width, num_elements)
         mask = (1 << self.to_width) - 1
         for u in range(units):
             unit = 0
             sp = start + u * spu
-            for i, x in enumerate(src[sp:sp + spu]):
+            for i, x in enumerate(src[sp : sp + spu]):
                 if self.endian is Endian.LITTLE:
                     unit |= x << (i * self.from_width)
                 else:
@@ -156,4 +152,4 @@ class Repacker(Model):
 
     @classmethod
     def cpp_type(cls):
-        return 'RepackerModel', 'veles::data::Repacker', 'data/repack.h'
+        return "RepackerModel", "veles::data::Repacker", "data/repack.h"

@@ -16,8 +16,6 @@ from __future__ import unicode_literals
 
 import unittest
 
-import six
-
 from veles.data.bindata import BinData
 from veles.schema import fields
 from veles.schema.model import Model
@@ -40,32 +38,34 @@ class TurboZlew(Zlew):
 
 class TestModel(unittest.TestCase):
     def test_field_name(self):
-        self.assertEqual(Piwo.a.name, 'a')
-        self.assertEqual(Zlew.b.name, 'b')
-        self.assertEqual(Zlew.b.element.name, 'b.element')
-        self.assertEqual(Zlew.b.element.key.name, 'b.element.key')
-        self.assertEqual(Zlew.b.element.value.name, 'b.element.value')
-        self.assertEqual(TurboZlew.c.name, 'c')
-        self.assertEqual(TurboZlew.c.element.name, 'c.element')
+        self.assertEqual(Piwo.a.name, "a")
+        self.assertEqual(Zlew.b.name, "b")
+        self.assertEqual(Zlew.b.element.name, "b.element")
+        self.assertEqual(Zlew.b.element.key.name, "b.element.key")
+        self.assertEqual(Zlew.b.element.value.name, "b.element.value")
+        self.assertEqual(TurboZlew.c.name, "c")
+        self.assertEqual(TurboZlew.c.element.name, "c.element")
         self.assertEqual(set(Piwo.fields), {Piwo.a})
         self.assertEqual(set(Zlew.fields), {Zlew.b})
-        self.assertEqual(set(TurboZlew.fields), {
-            Zlew.b, TurboZlew.c, TurboZlew.d, TurboZlew.e})
+        self.assertEqual(
+            set(TurboZlew.fields), {Zlew.b, TurboZlew.c, TurboZlew.d, TurboZlew.e}
+        )
 
-    if six.PY3:
-        def test_ordering(self):
-            class MultiZlew(Model):
-                a = fields.Boolean()
-                b = fields.Boolean()
-                c = fields.Boolean()
-                d = fields.Boolean()
-                e = fields.Boolean()
-                f = fields.Boolean()
-                g = fields.Boolean()
-                h = fields.Boolean()
-                i = fields.Boolean()
+    def test_ordering(self):
+        class MultiZlew(Model):
+            a = fields.Boolean()
+            b = fields.Boolean()
+            c = fields.Boolean()
+            d = fields.Boolean()
+            e = fields.Boolean()
+            f = fields.Boolean()
+            g = fields.Boolean()
+            h = fields.Boolean()
+            i = fields.Boolean()
 
-            self.assertEqual(MultiZlew.fields, [
+        self.assertEqual(
+            MultiZlew.fields,
+            [
                 MultiZlew.a,
                 MultiZlew.b,
                 MultiZlew.c,
@@ -75,7 +75,8 @@ class TestModel(unittest.TestCase):
                 MultiZlew.g,
                 MultiZlew.h,
                 MultiZlew.i,
-            ])
+            ],
+        )
 
     def test_init(self):
         a = Piwo(a=True)
@@ -103,7 +104,7 @@ class TestModel(unittest.TestCase):
         with self.assertRaises(SchemaError):
             Piwo()
         with self.assertRaises(TypeError):
-            Piwo(a=True, b='zlew')
+            Piwo(a=True, b="zlew")
         with self.assertRaises(SchemaError):
             TurboZlew()
         with self.assertRaises(SchemaError):
@@ -112,68 +113,77 @@ class TestModel(unittest.TestCase):
     def test_dump(self):
         a = Piwo(a=True)
         da = a.dump()
-        self.assertEqual(da, {'a': True})
+        self.assertEqual(da, {"a": True})
         for x in da:
-            self.assertIsInstance(x, six.text_type)
+            self.assertIsInstance(x, str)
 
-        b = Zlew(b=[{'a': BinData(8, []), 'b': BinData(12, [0x123])}, {}])
+        b = Zlew(b=[{"a": BinData(8, []), "b": BinData(12, [0x123])}, {}])
         db = b.dump()
-        self.assertEqual(db, {
-            'b': [
-                {
-                    'a': BinData(8, []),
-                    'b': BinData(12, [0x123]),
-                },
-                {},
-            ]
-        })
+        self.assertEqual(
+            db,
+            {
+                "b": [
+                    {
+                        "a": BinData(8, []),
+                        "b": BinData(12, [0x123]),
+                    },
+                    {},
+                ]
+            },
+        )
         for x in db:
-            self.assertIsInstance(x, six.text_type)
+            self.assertIsInstance(x, str)
 
-        c = TurboZlew(b=[{}], c={b'abc', b'def'}, d=Piwo(a=False), e=7)
+        c = TurboZlew(b=[{}], c={b"abc", b"def"}, d=Piwo(a=False), e=7)
         dc = c.dump()
-        self.assertEqual(dc, {
-            'b': [{}],
-            'c': dc['c'],
-            'd': {'a': False},
-            'e': 7,
-        })
-        self.assertIsInstance(dc['c'], list)
-        self.assertEqual(set(dc['c']), {b'abc', b'def'})
+        self.assertEqual(
+            dc,
+            {
+                "b": [{}],
+                "c": dc["c"],
+                "d": {"a": False},
+                "e": 7,
+            },
+        )
+        self.assertIsInstance(dc["c"], list)
+        self.assertEqual(set(dc["c"]), {b"abc", b"def"})
 
         d = TurboZlew(d=a)
         dd = d.dump()
-        self.assertEqual(dd, {
-            'b': [],
-            'c': [],
-            'd': {'a': True},
-            'e': 3,
-        })
+        self.assertEqual(
+            dd,
+            {
+                "b": [],
+                "c": [],
+                "d": {"a": True},
+                "e": 3,
+            },
+        )
 
     def test_load(self):
-        a = Piwo.load({
-            'a': True,
-        })
+        a = Piwo.load(
+            {
+                "a": True,
+            }
+        )
         self.assertEqual(a, Piwo(a=True))
         b = Zlew.load({})
         self.assertEqual(b, Zlew())
-        c = Zlew.load({'b': [{}]})
+        c = Zlew.load({"b": [{}]})
         self.assertEqual(c, Zlew(b=[{}]))
-        d = TurboZlew.load({
-            'd': {'a': True}
-        })
+        d = TurboZlew.load({"d": {"a": True}})
         self.assertEqual(d, TurboZlew(d=a))
         with self.assertRaises(SchemaError):
             Piwo.load({})
         with self.assertRaises(SchemaError):
-            Piwo.load({'a': None})
+            Piwo.load({"a": None})
         with self.assertRaises(SchemaError):
-            Piwo.load({'a': True, 'b': True})
+            Piwo.load({"a": True, "b": True})
         with self.assertRaises(SchemaError):
-            Piwo.load('piwo')
+            Piwo.load("piwo")
         with self.assertRaises(SchemaError):
             Zlew.load([])
         with self.assertRaises(SchemaError):
-            Zlew.load({'b': {}})
+            Zlew.load({"b": {}})
         with self.assertRaises(SchemaError):
-            Zlew.load({'d': {'a': False}})
+            Zlew.load({"d": {"a": False}})

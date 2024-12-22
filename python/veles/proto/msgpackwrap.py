@@ -13,10 +13,8 @@
 # limitations under the License.
 
 import msgpack
-import six
 
 from veles.data.bindata import BinData
-from veles.compatibility import pep487
 from veles.schema import nodeid
 from veles.compatibility.int_bytes import int_to_bytes, int_from_bytes
 from veles.util.bigint import bigint_encode, bigint_decode
@@ -27,30 +25,28 @@ EXT_BINDATA = 1
 EXT_BIGINT = 2
 
 
-class MsgpackWrapper(pep487.NewObject):
+class MsgpackWrapper(object):
     def __init__(self):
-        self.packer = msgpack.Packer(
-            use_bin_type=True, default=MsgpackWrapper.pack_obj)
-        self.unpacker = msgpack.Unpacker(
-            encoding='utf-8', ext_hook=MsgpackWrapper.load_obj)
+        self.packer = msgpack.Packer(use_bin_type=True, default=MsgpackWrapper.pack_obj)
+        self.unpacker = msgpack.Unpacker(ext_hook=MsgpackWrapper.load_obj)
 
     @classmethod
     def pack_obj(cls, obj):
         if isinstance(obj, nodeid.NodeID):
             return msgpack.ExtType(EXT_NODE_ID, obj.bytes)
         if isinstance(obj, BinData):
-            width = int_to_bytes(obj.width, 4, 'little')
+            width = int_to_bytes(obj.width, 4, "little")
             return msgpack.ExtType(EXT_BINDATA, width + obj.raw_data)
-        if isinstance(obj, six.integer_types):
+        if isinstance(obj, int):
             return msgpack.ExtType(EXT_BIGINT, bigint_encode(obj))
-        raise TypeError('Object of unknown type {}'.format(obj))
+        raise TypeError("Object of unknown type {}".format(obj))
 
     @classmethod
     def load_obj(cls, code, data):
         if code == EXT_NODE_ID:
             return nodeid.NodeID(data)
         elif code == EXT_BINDATA:
-            width = int_from_bytes(data[:4], 'little')
+            width = int_from_bytes(data[:4], "little")
             return BinData.from_raw_data(width, data[4:])
         elif code == EXT_BIGINT:
             return bigint_decode(data)
