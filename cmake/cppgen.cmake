@@ -1,14 +1,13 @@
 set(VENV_DIR "${CMAKE_CURRENT_BINARY_DIR}/msgpack-venv")
 set(REQUIREMENTS "${CMAKE_SOURCE_DIR}/python/requirements.txt")
+set(REQUIREMENTS_INSTALLED "${VENV_DIR}/requirements.installed")
 
 if(WIN32)
   set(BASEPYEXE py.exe -3)
   set(PYEXE "${VENV_DIR}/Scripts/python.exe")
-  set(SIX_LOC "${VENV_DIR}/Lib/site-packages/six.py")
 else()
   set(BASEPYEXE python3)
   set(PYEXE "${VENV_DIR}/bin/python3")
-  set(SIX_LOC "${VENV_DIR}/lib/site-packages/six.py")
 endif()
 
 add_custom_command(
@@ -17,9 +16,10 @@ add_custom_command(
 )
 
 add_custom_command(
-    OUTPUT ${SIX_LOC}
+    OUTPUT ${REQUIREMENTS_INSTALLED}
     COMMAND ${PYEXE} -m pip install -r ${REQUIREMENTS}
-    DEPENDS ${PYEXE}
+    COMMAND ${CMAKE_COMMAND} -E touch ${REQUIREMENTS_INSTALLED}
+    DEPENDS ${PYEXE} ${REQUIREMENTS}
 )
 
-add_custom_target(cpp_python_gen DEPENDS ${SIX_LOC})
+add_custom_target(cpp_python_gen DEPENDS ${REQUIREMENTS_INSTALLED})

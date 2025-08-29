@@ -11,9 +11,9 @@ if(NOT MSGPACK_INCLUDE_PATH)
       COMMAND ${CMAKE_COMMAND} -E tar xzf ${MSGPACK_PATH}
   )
   set(MSGPACK_INCLUDE_PATH "${MSGPACK_EXTRACT_PATH}/include")
-  add_custom_target(msgpack-c DEPENDS ${MSGPACK_EXTRACT_PATH} ${SIX_LOC})
+  add_custom_target(msgpack-c DEPENDS ${MSGPACK_EXTRACT_PATH} ${REQUIREMENTS_INSTALLED})
 else()
-  add_custom_target(msgpack-c ${SIX_LOC})
+  add_custom_target(msgpack-c DEPENDS ${REQUIREMENTS_INSTALLED})
 endif()
 
 include_directories(${MSGPACK_INCLUDE_PATH})
