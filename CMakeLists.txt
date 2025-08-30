@@ -352,7 +352,7 @@ add_executable(main_exe
     ${VISUALIZATION_SHADERS}
 )
 
-qt5_use_modules(veles_base Core Gui Widgets Network)
+target_link_libraries(veles_base Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Network)
 add_dependencies(veles_base msgpack-c)
 
 target_link_libraries(main_exe veles_base Qt5::Widgets ${ZLIB_LIBRARIES} ${ADDITIONAL_LINK_LIBRARIES})
