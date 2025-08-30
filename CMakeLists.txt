@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.5.0)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 # HACK: An ugly hack to provide default compilation type.
@@ -20,9 +22,9 @@ if(WIN32)
   if(CMAKE_SIZEOF_VOID_P EQUAL 4)
     message(FATAL_ERROR "Windows 32-bit is not supported due to performance problems in msgpack")
   endif()
-  cmake_minimum_required(VERSION 3.10.0)
-else()
-  cmake_minimum_required(VERSION 3.1.0)
+  if(CMAKE_VERSION VERSION_LESS "3.10.0")
+    message(FATAL_ERROR "Windows builds require CMake 3.10.0 or higher")
+  endif()
 endif()
 
 include("cmake/googletest.cmake")
