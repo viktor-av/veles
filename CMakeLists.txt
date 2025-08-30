@@ -351,6 +351,7 @@ add_executable(main_exe
 )
 
 qt5_use_modules(veles_base Core Gui Widgets Network)
+add_dependencies(veles_base msgpack-c)
 
 target_link_libraries(main_exe veles_base Qt5::Widgets ${ZLIB_LIBRARIES} ${ADDITIONAL_LINK_LIBRARIES})
 set_target_properties(main_exe PROPERTIES OUTPUT_NAME "veles")
