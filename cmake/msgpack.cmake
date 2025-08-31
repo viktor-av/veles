@@ -1,8 +1,8 @@
 if(NOT MSGPACK_INCLUDE_PATH)
-  set(MSGPACK_URL "https://github.com/msgpack/msgpack-c/releases/download/cpp-2.1.5/msgpack-2.1.5.tar.gz")
-  set(MSGPACK_PATH "${CMAKE_CURRENT_BINARY_DIR}/msgpack-2.1.5.tar.gz")
-  set(MSGPACK_EXTRACT_PATH "${CMAKE_CURRENT_BINARY_DIR}/msgpack-2.1.5")
-  set(MSGPACK_SHA256 "6126375af9b204611b9d9f154929f4f747e4599e6ae8443b337915dcf2899d2b")
+  set(MSGPACK_URL "https://github.com/msgpack/msgpack-c/releases/download/cpp-3.3.0/msgpack-3.3.0.tar.gz")
+  set(MSGPACK_PATH "${CMAKE_CURRENT_BINARY_DIR}/msgpack-3.3.0.tar.gz")
+  set(MSGPACK_EXTRACT_PATH "${CMAKE_CURRENT_BINARY_DIR}/msgpack-3.3.0")
+  set(MSGPACK_SHA256 "6e114d12a5ddb8cb11f669f83f32246e484a8addd0ce93f274996f1941c1f07b")
 
   file(DOWNLOAD ${MSGPACK_URL} ${MSGPACK_PATH} EXPECTED_HASH SHA256=${MSGPACK_SHA256})
 
