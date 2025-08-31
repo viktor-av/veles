@@ -267,33 +267,37 @@ void ConnectionManager::disconnect() {
 }
 
 void ConnectionManager::serverProcessReadyRead() {
-  if (server_process_ != nullptr && server_process_->bytesAvailable() > 0) {
-    QByteArray out = server_process_->read(server_process_->bytesAvailable());
-    if (out.size() > 0) {
-      if (network_client_->connectionStatus() ==
-          client::NetworkClient::ConnectionStatus::NotConnected) {
-        QString marker("Client url: ");
-        int start_pos = out.indexOf(marker);
-        if (start_pos != -1) {
-          start_pos += marker.length();
-          int end_pos = out.indexOf("\n", start_pos);
-          if (end_pos == -1) {
-            server_process_->waitForReadyRead();
-            QByteArray additional =
-                server_process_->readLine(server_process_->bytesAvailable());
-            out += additional;
-            end_pos = out.indexOf("\n", start_pos);
-          }
-          QByteArray url = out.mid(start_pos, end_pos - start_pos);
-          network_client_->connect(QString::fromUtf8(url),
-                                   connection_dialog_->clientName(),
-                                   veles::util::version::string, "Veles UI",
-                                   "Veles UI", is_local_server_);
-        }
+  if (server_process_ == nullptr || server_process_->bytesAvailable() == 0) {
+    return;
+  }
+
+  QByteArray out = server_process_->readAll();
+  
+  // Look for server URL if not yet connected
+  if (network_client_->connectionStatus() == 
+      client::NetworkClient::ConnectionStatus::NotConnected) {
+    static const QByteArray marker("Client url: ");
+    int start_pos = out.indexOf(marker);
+    if (start_pos != -1) {
+      start_pos += marker.length();
+      int end_pos = out.indexOf('\n', start_pos);
+      if (end_pos == -1) {
+        server_process_->waitForReadyRead();
+        QByteArray additional = server_process_->readAll();
+        out += additional;
+        end_pos = out.indexOf('\n', start_pos);
       }
-      LogWidget::output()->write(out);
+      if (end_pos != -1) {
+        QByteArray url = out.mid(start_pos, end_pos - start_pos);
+        network_client_->connect(QString::fromUtf8(url),
+                                 connection_dialog_->clientName(),
+                                 veles::util::version::string, "Veles UI",
+                                 "Veles UI", is_local_server_);
+      }
     }
   }
+  
+  LogWidget::output()->write(out);
 }
 
 void ConnectionManager::serverProcessErrorOccurred(
