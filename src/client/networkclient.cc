@@ -154,7 +154,7 @@ void NetworkClient::connect(const QString& server_url,
     QObject::connect(
         client_socket_,
         static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>(
-            &QAbstractSocket::error),
+            &QAbstractSocket::errorOccurred),
         this, &NetworkClient::socketError);
 
     if (output() != nullptr) {
