@@ -94,14 +94,14 @@ void LogWidget::saveFileSelected(const QString& file) {
     save_file.close();
 
     if (result == data.size()) {
-      out << tr("DONE: Log messages successfully saved to a file.") << endl;
+      out << tr("DONE: Log messages successfully saved to a file.") << Qt::endl;
     } else {
       out << tr("ERROR: File %1 successfully opened but write attempt failed.")
                  .arg(file)
-          << endl;
+          << Qt::endl;
     }
   } else {
-    out << tr("ERROR: Could not open a file: %1.").arg(file) << endl;
+    out << tr("ERROR: Could not open a file: %1.").arg(file) << Qt::endl;
   }
 }
 

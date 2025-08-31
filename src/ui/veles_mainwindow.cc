@@ -299,10 +299,10 @@ void VelesMainWindow::updateConnectionStatus(
 
     if (!files_to_upload_once_connected_.empty()) {
       QTextStream out(LogWidget::output());
-      out << "Uploading files specified as command line arguments:" << endl;
+      out << "Uploading files specified as command line arguments:" << Qt::endl;
 
       for (const auto& path : files_to_upload_once_connected_) {
-        out << "    " << path << endl;
+        out << "    " << path << Qt::endl;
         createFileBlob(path);
         QApplication::processEvents();
       }

@@ -175,7 +175,7 @@ dbif::InfoPromise* NCWrapper::info(const dbif::PInfoRequest& req,
   }
 
   if (nc_->output() != nullptr) {
-    *nc_->output() << "NCWrapper: unknown InfoRequest." << endl;
+    *nc_->output() << "NCWrapper: unknown InfoRequest." << Qt::endl;
   }
 
   return new dbif::InfoPromise;
@@ -221,7 +221,7 @@ dbif::MethodResultPromise* NCWrapper::runMethod(const dbif::PMethodRequest& req,
   }
 
   if (nc_->output() != nullptr) {
-    *nc_->output() << "NCWrapper: unknown MethodRequest." << endl;
+    *nc_->output() << "NCWrapper: unknown MethodRequest." << Qt::endl;
   }
 
   return new dbif::MethodResultPromise;
@@ -240,7 +240,7 @@ void NCWrapper::handleGetListReplyMessage(const msg_ptr& message) {
                             "NCWrapper: received MsgGetListReply "
                             "(%1 object(s)).")
                             .arg(reply->objs->size())
-                     << " qid = " << reply->qid << endl;
+                     << " qid = " << reply->qid << Qt::endl;
     }
 
     const auto promise_iter = promises_.find(reply->qid);
@@ -323,7 +323,7 @@ void NCWrapper::handleRequestAckMessage(const msg_ptr& message) {
   if (reply != nullptr) {
     if (nc_->output() != nullptr && detailed_debug_info_) {
       *nc_->output() << "NCWrapper: received MsgRequestAck. rid = "
-                     << reply->rid << endl;
+                     << reply->rid << Qt::endl;
     }
 
     const auto promise_iter = method_promises_.find(reply->rid);
@@ -336,7 +336,7 @@ void NCWrapper::handleRequestAckMessage(const msg_ptr& message) {
                                 "NCWrapper: node with id \"%1\""
                                 " created.")
                                 .arg(id_iter->second->id().toHexString())
-                         << endl;
+                         << Qt::endl;
         }
         emit promise_iter->second->gotResult(
             QSharedPointer<dbif::CreatedReply>::create(id_iter->second));
@@ -423,7 +423,7 @@ void NCWrapper::handleGetReplyMessage(const msg_ptr& message) {
                                   "(file blob) - name: \"%1\" comment: \"%2\";")
                                   .arg(name)
                                   .arg(comment)
-                           << endl
+                           << Qt::endl
                            << QString(
                                   "    base: %1; size: %2;"
                                   " width: %3; path: \"%4\".")
@@ -431,7 +431,7 @@ void NCWrapper::handleGetReplyMessage(const msg_ptr& message) {
                                   .arg(size)
                                   .arg(width)
                                   .arg(path)
-                           << endl;
+                           << Qt::endl;
           }
 
           emit promise_iter->second->gotInfo(
@@ -447,14 +447,14 @@ void NCWrapper::handleGetReplyMessage(const msg_ptr& message) {
                                   "(sub blob) - name: \"%1\" comment: \"%2\";")
                                   .arg(name)
                                   .arg(comment)
-                           << endl
+                           << Qt::endl
                            << QString(
                                   "    base: %1; size: %2;"
                                   " width: %3.")
                                   .arg(base)
                                   .arg(size)
                                   .arg(width)
-                           << endl;
+                           << Qt::endl;
           }
 
           emit promise_iter->second->gotInfo(
@@ -492,14 +492,14 @@ void NCWrapper::handleGetReplyMessage(const msg_ptr& message) {
                                 "(chunk) - name: \"%1\" comment: \"%2\";")
                                 .arg(name)
                                 .arg(comment)
-                         << endl
+                         << Qt::endl
                          << QString(
                                 "    start: %1; end: %2;"
                                 " type: \"%3\".")
                                 .arg(start)
                                 .arg(end)
                                 .arg(chunk_type)
-                         << endl;
+                         << Qt::endl;
         }
 
         emit promise_iter->second->gotInfo(
@@ -512,7 +512,7 @@ void NCWrapper::handleGetReplyMessage(const msg_ptr& message) {
                                 "%1\" comment: \"%2\".")
                                 .arg(name)
                                 .arg(comment)
-                         << endl;
+                         << Qt::endl;
         }
 
         emit promise_iter->second->gotInfo(
@@ -532,7 +532,7 @@ void NCWrapper::handleGetBinDataReplyMessage(const msg_ptr& message) {
   auto reply = std::dynamic_pointer_cast<proto::MsgGetBinDataReply>(message);
   if (reply) {
     if (nc_->output() != nullptr && detailed_debug_info_) {
-      *nc_->output() << "NCWrapper: received MsgGetBinDataReply." << endl;
+      *nc_->output() << "NCWrapper: received MsgGetBinDataReply." << Qt::endl;
     }
 
     const auto promise_iter = promises_.find(reply->qid);
@@ -555,7 +555,7 @@ void NCWrapper::handleGetDataReplyMessage(const msg_ptr& message) {
   auto reply = std::dynamic_pointer_cast<proto::MsgGetDataReply>(message);
   if (reply) {
     if (nc_->output() != nullptr && detailed_debug_info_) {
-      *nc_->output() << "NCWrapper: received MsgGetDataReply." << endl;
+      *nc_->output() << "NCWrapper: received MsgGetDataReply." << Qt::endl;
     }
 
     auto chunk_data_item_query_iter = chunk_data_item_queries_.find(reply->qid);
@@ -594,10 +594,10 @@ void NCWrapper::handleQueryErrorMessage(const msg_ptr& message) {
   auto reply = std::dynamic_pointer_cast<proto::MsgQueryError>(message);
   if (reply) {
     if (nc_->output() != nullptr && detailed_debug_info_) {
-      *nc_->output() << "NCWrapper: received MsgQueryError." << endl
+      *nc_->output() << "NCWrapper: received MsgQueryError." << Qt::endl
                      << "    code: " << QString::fromStdString(reply->err->code)
                      << "  msg: " << QString::fromStdString(reply->err->msg)
-                     << endl;
+                     << Qt::endl;
     }
   } else {
     wrongMessageType("query_error", "MsgQueryError");
@@ -617,7 +617,7 @@ dbif::InfoPromise* NCWrapper::handleDescriptionRequest(const data::NodeID& id,
                             "NCWrapper: Sending MsgGet message "
                             "for node id \"%1\".")
                             .arg(id.toHexString())
-                     << endl;
+                     << Qt::endl;
     }
 
     auto msg = std::make_shared<proto::MsgGet>(
@@ -633,7 +633,7 @@ dbif::InfoPromise* NCWrapper::handleChildrenRequest(const data::NodeID& id,
   uint64_t qid = nc_->nextQid();
   if (nc_->connectionStatus() == NetworkClient::ConnectionStatus::Connected) {
     if (nc_->output() != nullptr && detailed_debug_info_) {
-      *nc_->output() << "NCWrapper: Sending MsgGetList message." << endl;
+      *nc_->output() << "NCWrapper: Sending MsgGetList message." << Qt::endl;
     }
     const auto null_pos = std::pair<bool, int64_t>(false, 0);
     auto msg = std::make_shared<proto::MsgGetList>(
@@ -667,7 +667,7 @@ dbif::InfoPromise* NCWrapper::handleBlobDataRequest(const data::NodeID& id,
   uint64_t qid = nc_->nextQid();
   if (nc_->connectionStatus() == NetworkClient::ConnectionStatus::Connected) {
     if (nc_->output() != nullptr && detailed_debug_info_) {
-      *nc_->output() << "NCWrapper: Sending MsgGetBinData message." << endl;
+      *nc_->output() << "NCWrapper: Sending MsgGetBinData message." << Qt::endl;
     }
     const auto end_pos = std::pair<bool, int64_t>(true, end);
     auto msg = std::make_shared<proto::MsgGetBinData>(
@@ -690,7 +690,7 @@ dbif::InfoPromise* NCWrapper::handleChunkDataRequest(const data::NodeID& id,
                             "NCWrapper: Sending MsgGetData and MsgGetList"
                             "message to get chunk data items of node \"%1\".")
                             .arg(id.toHexString())
-                     << endl;
+                     << Qt::endl;
     }
 
     auto msg_data = std::make_shared<proto::MsgGetData>(
@@ -730,7 +730,7 @@ dbif::MethodResultPromise* NCWrapper::handleRootCreateFileBlobFromDataRequest(
     if (nc_->output() != nullptr && detailed_debug_info_) {
       *nc_->output() << "NCWrapper: Sending a request to create a file"
                         " blob (MsgTransaction)."
-                     << endl;
+                     << Qt::endl;
     }
 
     auto tags =
@@ -808,7 +808,7 @@ dbif::MethodResultPromise* NCWrapper::handleChunkCreateRequest(
     if (nc_->output() != nullptr && detailed_debug_info_) {
       *nc_->output() << "NCWrapper: Sending a request to create a "
                         "chunk (MsgTransaction)."
-                     << endl;
+                     << Qt::endl;
     }
     auto new_id = std::make_shared<data::NodeID>();
 
@@ -886,7 +886,7 @@ dbif::MethodResultPromise* NCWrapper::handleChunkCreateSubBlobRequest(
                  "MsgTransaction message to handle ChunkCreateSubBlobRequest. "
                  "qid = %1")
                  .arg(qid)
-          << endl;
+          << Qt::endl;
     }
 
     auto tags =
@@ -960,7 +960,7 @@ dbif::MethodResultPromise* NCWrapper::handleDeleteRequest(
   uint64_t qid = nc_->nextQid();
   if (nc_->connectionStatus() == NetworkClient::ConnectionStatus::Connected) {
     if (nc_->output() != nullptr && detailed_debug_info_) {
-      *nc_->output() << "NCWrapper: Sending MsgDelete message." << endl;
+      *nc_->output() << "NCWrapper: Sending MsgDelete message." << Qt::endl;
     }
     auto msg = std::make_shared<proto::MsgDelete>(
         qid, std::make_shared<data::NodeID>(id));
@@ -978,7 +978,7 @@ dbif::MethodResultPromise* NCWrapper::handleSetNameRequest(
     if (nc_->output() != nullptr && detailed_debug_info_) {
       *nc_->output() << "NCWrapper: Sending a request to set a node's"
                         " name (MsgTransaction)."
-                     << endl;
+                     << Qt::endl;
     }
 
     auto operation = std::make_shared<proto::OperationSetAttr>(
@@ -1008,7 +1008,7 @@ dbif::MethodResultPromise* NCWrapper::handleSetCommentRequest(
     if (nc_->output() != nullptr && detailed_debug_info_) {
       *nc_->output() << "NCWrapper: Sending a request to set a node's"
                         " comment (MsgTransaction)."
-                     << endl;
+                     << Qt::endl;
     }
 
     auto operation = std::make_shared<proto::OperationSetAttr>(
@@ -1039,7 +1039,7 @@ dbif::MethodResultPromise* NCWrapper::handleChangeDataRequest(
     if (nc_->output() != nullptr && detailed_debug_info_) {
       *nc_->output() << "NCWrapper: Sending a request to set a node's"
                         " comment (MsgTransaction)."
-                     << endl;
+                     << Qt::endl;
     }
 
     auto bindata = std::make_shared<std::vector<uint8_t>>(
@@ -1074,7 +1074,7 @@ dbif::MethodResultPromise* NCWrapper::handleSetChunkBoundsRequest(
     if (nc_->output() != nullptr && detailed_debug_info_) {
       *nc_->output() << "NCWrapper: Sending a request to set chunk's"
                         "bounds (MsgTransaction)."
-                     << endl;
+                     << Qt::endl;
     }
 
     auto operation = std::make_shared<proto::OperationSetPos>(
@@ -1104,7 +1104,7 @@ dbif::MethodResultPromise* NCWrapper::handleSetChunkParseRequest(
     if (nc_->output() != nullptr && detailed_debug_info_) {
       *nc_->output() << "NCWrapper: Sending a request to set chunks's "
                         "data items (MsgTransaction). qid = "
-                     << qid << endl;
+                     << qid << Qt::endl;
     }
 
     uint64_t qid_bounds = nc_->nextQid();
@@ -1450,7 +1450,7 @@ void NCWrapper::updateConnectionStatus(
       if (nc_->output() != nullptr && detailed_debug_info_) {
         *nc_->output() << "NCWrapper: Sending MsgGetList message for"
                           " the root node."
-                       << endl;
+                       << Qt::endl;
       }
       subscriptions_.insert(entry.first);
       promises_[entry.first] = entry.second;
@@ -1517,7 +1517,7 @@ void NCWrapper::wrongMessageType(const QString& name,
                           "\"%1\", but it's actually not a %2.")
                           .arg(name)
                           .arg(expected_type)
-                   << endl;
+                   << Qt::endl;
   }
 }
 

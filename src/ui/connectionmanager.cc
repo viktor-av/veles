@@ -96,7 +96,7 @@ QAction* ConnectionManager::killLocallyCreatedServerAction() {
 
 void ConnectionManager::locallyCreatedServerStarted() {
   QTextStream out(veles::ui::LogWidget::output());
-  out << "Process of locally created server started." << endl;
+  out << "Process of locally created server started." << Qt::endl;
   kill_locally_created_server_action_->setEnabled(true);
 }
 
@@ -107,9 +107,9 @@ void ConnectionManager::locallyCreatedServerFinished(
   QTextStream out(LogWidget::output());
   out << "Process of locally created server finished.";
   if (exit_status == QProcess::NormalExit) {
-    out << " Exit code: " << exit_code << "." << endl;
+    out << " Exit code: " << exit_code << "." << Qt::endl;
   } else {  // QProcess::CrashExit
-    out << " Exit status: crashed or killed." << endl;
+    out << " Exit status: crashed or killed." << Qt::endl;
   }
   kill_locally_created_server_action_->setEnabled(false);
   server_process_->deleteLater();
@@ -131,7 +131,7 @@ void ConnectionManager::connectionDialogAccepted() {
     } else {
       startLocalServer();
       QTextStream out(LogWidget::output());
-      out << "Waiting for a new server to start..." << endl;
+      out << "Waiting for a new server to start..." << Qt::endl;
     }
   } else {
     startClient();
@@ -233,16 +233,16 @@ void ConnectionManager::startLocalServer() {
 #endif
 
   QTextStream out(veles::ui::LogWidget::output());
-  out << "Trying to start a new server..." << endl
-      << "    working directory: " << directory_path << endl
-      << "    python script name: " << server_file_name << endl
+  out << "Trying to start a new server..." << Qt::endl
+      << "    working directory: " << directory_path << Qt::endl
+      << "    python script name: " << server_file_name << Qt::endl
       << "    python interpreter executable: " << python_interpreter_executable
-      << endl
-      << "    arguments:" << endl;
+      << Qt::endl
+      << "    arguments:" << Qt::endl;
   for (const auto& arg : arguments) {
-    out << "        " << arg << endl;
+    out << "        " << arg << Qt::endl;
   }
-  out << endl;
+  out << Qt::endl;
 
   server_process_->start(python_interpreter_executable, arguments,
                          QIODevice::ReadWrite | QIODevice::Text);
@@ -301,11 +301,11 @@ void ConnectionManager::serverProcessErrorOccurred(
   QTextStream out(veles::ui::LogWidget::output());
 
   if (error == QProcess::FailedToStart) {
-    out << "*************************************" << endl
-        << "Failed to run python interpreter." << endl
-        << "Make sure that python >= 3.5 is installed and" << endl
-        << "server script location is set correctly." << endl
-        << "*************************************" << endl;
+    out << "*************************************" << Qt::endl
+        << "Failed to run python interpreter." << Qt::endl
+        << "Make sure that python >= 3.5 is installed and" << Qt::endl
+        << "server script location is set correctly." << Qt::endl
+        << "*************************************" << Qt::endl;
   }
 }
 
@@ -340,7 +340,7 @@ void ConnectionManager::messageReceived(const client::msg_ptr& message) {
         std::dynamic_pointer_cast<proto::MsgConnectionsReply>(message);
     if (connections_reply) {
       QTextStream& out = *network_client_output_;
-      out << "ConnectionManager: received updated list of connections:" << endl;
+      out << "ConnectionManager: received updated list of connections:" << Qt::endl;
 
       if (connections_reply->connections) {
         for (const auto& connection : *connections_reply->connections) {
@@ -348,10 +348,10 @@ void ConnectionManager::messageReceived(const client::msg_ptr& message) {
               << QString::fromStdString(*connection->client_name) << "\""
               << " type = \""
               << QString::fromStdString(*connection->client_type) << "\""
-              << endl;
+              << Qt::endl;
         }
       } else {
-        out << "    -" << endl;
+        out << "    -" << Qt::endl;
       }
 
       emit connectionsChanged(connections_reply->connections);
